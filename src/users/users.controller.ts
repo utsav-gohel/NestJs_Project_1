@@ -22,6 +22,13 @@ import { UserDto } from './dtos/user.dtos';
 import { AuthService } from './auth.service';
 import { CurrentUser } from './decorators/current-user.decorators';
 import { User } from './user.entity';
+import {
+  ApiBadRequestResponse,
+  ApiCreatedResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+
+@ApiTags('User')
 @Controller('auth')
 @Serialize(UserDto)
 export class UsersController {
@@ -38,6 +45,13 @@ export class UsersController {
   signoutUser(@Session() session: any) {
     session.userId = null;
   }
+  @ApiCreatedResponse({
+    description: 'Signed Up Succesfully',
+    type: UserDto,
+  })
+  @ApiBadRequestResponse({
+    description: 'Signed Up failed',
+  })
   @Post('/signup')
   async createuser(@Body() body: CreateUserDto, @Session() session: any) {
     const user = await this.authService.signup(body.email, body.password);
@@ -50,7 +64,10 @@ export class UsersController {
     session.userId = user.id;
     return user;
   }
-
+  @Get('/byEmail')
+  findAllUsers(@Query('email') email: string) {
+    return this.usersService.find(email);
+  }
   @Get('/:id')
   async findUser(@Param('id') id: string) {
     const user = await this.usersService.findOne(id);
@@ -60,10 +77,6 @@ export class UsersController {
     return user;
   }
   @UseInterceptors(ClassSerializerInterceptor)
-  @Get()
-  findAllUsers(@Query('email') email: string) {
-    return this.usersService.find(email);
-  }
   @Delete('/:id')
   removeUser(@Param('id') id: string) {
     return this.usersService.remove(id);

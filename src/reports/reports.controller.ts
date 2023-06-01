@@ -19,10 +19,12 @@ import { Serialize } from 'src/interceptor/serialize-interceptor';
 import { ApproveReportDto } from './dtos/approve-report.dto';
 import { AdminGuard } from 'src/Guards/admin.guards';
 import { getEstimateDto } from './dtos/get-estimate.dto';
+import { ApiTags } from '@nestjs/swagger';
+@ApiTags('Reports')
 @Controller('reports')
 export class ReportsController {
   constructor(private reportsService: ReportsService) {}
-  @Get()
+  @Get('/getEstimate')
   getEstimate(@Query() query: getEstimateDto) {
     return this.reportsService.createEstimate(query);
   }
